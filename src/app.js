@@ -149,7 +149,7 @@ els.payBtn.addEventListener("click", async () => {
       <p><strong>Payment confirmed on Stellar testnet.</strong></p>
       <p>Your code: <code>${code}</code></p>
       <p>Transaction: <a href="https://stellar.expert/explorer/testnet/tx/${submitData.hash}" target="_blank" rel="noopener">${submitData.hash}</a></p>
-      <p>This is the same synchronous path Genghis uses on mainnet for people, and that the x402 memo bridge uses for agents (see ARCHITECTURE.md, flows A and B).</p>
+      <p>This is the synchronous path the grant brings to Genghis on mainnet, for people and, through the x402 memo bridge, for agents (see ARCHITECTURE.md, flows A and B).</p>
     `;
   } catch (err) {
     setStatus("Stopped.");

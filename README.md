@@ -1,8 +1,8 @@
-# Genghis on Stellar — testnet proof of concept
+# Genghis on Stellar: testnet proof of concept
 
 A minimal, live demo of Flow A from [ARCHITECTURE.md](https://github.com/genghisecommerce/genghis-stellar-docs/blob/main/ARCHITECTURE.md): a buyer connects a Stellar wallet, pays with a memo-tagged testnet payment, and gets a code back in the same page, with no redirect.
 
-**Try it:** https://genghisecommerce.github.io/genghis-stellar-poc/ (needs Freighter or xBull, set to **Testnet**, with a funded testnet account — fund one free at https://friendbot.stellar.org/?addr=YOUR_ADDRESS)
+**Try it:** https://genghisecommerce.github.io/genghis-stellar-poc/ (needs Freighter or xBull, set to **Testnet**, with a funded testnet account. Fund one free at https://friendbot.stellar.org/?addr=YOUR_ADDRESS)
 
 No real money moves. Everything runs on Stellar testnet.
 
@@ -10,7 +10,7 @@ No real money moves. Everything runs on Stellar testnet.
 
 - A live frontend using the Stellar Wallets Kit (Freighter and xBull), built for this grant.
 - A signed Stellar payment, submitted straight to testnet Horizon, that carries the memo a payment processor uses to attribute a deposit (see `ARCHITECTURE.md`, section 2, on why the memo matters).
-- The buyer gets a code back inside the same page the moment the payment settles, the synchronous pattern this grant brings to production.
+- The buyer gets a code back inside the same page the moment the payment settles. This synchronous pattern is what the grant brings to production; it is not live on genghis.pro yet.
 
 ## What is simplified for this static demo
 
@@ -40,6 +40,6 @@ Then open `http://localhost:8899`.
 
 ## Related
 
-- [genghis-stellar-docs](https://github.com/genghisecommerce/genghis-stellar-docs) — the technical architecture this demo implements a slice of
-- [genghis-mcp-readonly](https://github.com/genghisecommerce/genghis-mcp-readonly) — the agent discovery layer, live in production
-- https://www.genghis.pro — the live marketplace
+- [genghis-stellar-docs](https://github.com/genghisecommerce/genghis-stellar-docs): the technical architecture this demo implements a slice of
+- [genghis-mcp-readonly](https://github.com/genghisecommerce/genghis-mcp-readonly): the agent discovery layer, tested against production
+- [genghis.pro](https://www.genghis.pro): the live marketplace
