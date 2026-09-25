@@ -29,7 +29,9 @@ const HORIZON_TESTNET = "https://horizon-testnet.stellar.org";
 // processor would issue in production (see ARCHITECTURE.md, section 2).
 const MERCHANT_ADDRESS =
   "GBBATDYWQWD4EPQNQQSTUABAF3COF2RZAOY6NHVOI5JU4PU4DDBPS673";
-const PAY_AMOUNT = "5"; // testnet XLM
+const PRICE_USD = 4.97; // live Genghis price, India eSIM 1 GB / 7 days, 2026-09-25
+const PRODUCT = "India eSIM, 1 GB / 7 days";
+let PAY_AMOUNT = null; // testnet XLM, set from the live XLM/USD rate
 
 StellarWalletsKit.init({
   network: Networks.TESTNET,
@@ -42,7 +44,21 @@ const els = {
   payBtn: document.getElementById("pay-btn"),
   status: document.getElementById("status"),
   result: document.getElementById("result"),
+  quote: document.getElementById("quote"),
 };
+
+async function loadQuote() {
+  try {
+    const r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd");
+    const rate = (await r.json()).stellar.usd;
+    PAY_AMOUNT = (PRICE_USD / rate).toFixed(7);
+    els.quote.textContent = `$${PRICE_USD} = ${Number(PAY_AMOUNT).toFixed(2)} XLM at ${rate} USD/XLM`;
+  } catch {
+    PAY_AMOUNT = "25"; // fallback if the rate service is unreachable
+    els.quote.textContent = "Rate unavailable: using 25 testnet XLM";
+  }
+}
+loadQuote();
 
 let buyerAddress = null;
 
@@ -83,7 +99,7 @@ els.connectBtn.addEventListener("click", async () => {
 });
 
 els.payBtn.addEventListener("click", async () => {
-  if (!buyerAddress) return;
+  if (!buyerAddress || !PAY_AMOUNT) return;
   els.payBtn.disabled = true;
   els.result.textContent = "";
   const memo = randomMemo();
@@ -104,7 +120,7 @@ els.payBtn.addEventListener("click", async () => {
     const account = new Account(buyerAddress, accountData.sequence);
 
     setStatus(
-      `Building a ${PAY_AMOUNT} XLM payment to Genghis with memo ${memo}...`
+      `Building a ${Number(PAY_AMOUNT).toFixed(2)} XLM payment to Genghis with memo ${memo}...`
     );
     const tx = new TransactionBuilder(account, {
       fee: BASE_FEE,
@@ -158,7 +174,7 @@ els.payBtn.addEventListener("click", async () => {
     setStatus("Delivered.");
     els.result.innerHTML = `
       <p><strong>Payment confirmed on Stellar testnet.</strong></p>
-      <p>Your code: <code>${code}</code></p>
+      <p>${PRODUCT}. Your eSIM code: <code>${code}</code></p>
       <p>Transaction: <a href="https://stellar.expert/explorer/testnet/tx/${submitData.hash}" target="_blank" rel="noopener">${submitData.hash}</a></p>
       <p>This is the synchronous path the grant brings to Genghis on mainnet, for people and, through the x402 memo bridge, for agents (see ARCHITECTURE.md, flows A and B).</p>
     `;
