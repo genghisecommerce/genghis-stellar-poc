@@ -61,6 +61,17 @@ els.connectBtn.addEventListener("click", async () => {
   setStatus("Opening wallet selector...");
   try {
     const { address } = await StellarWalletsKit.authModal();
+    // Guard: this demo only works on testnet. A wallet left on mainnet
+    // would sign for the wrong network, so stop here and say why.
+    const { networkPassphrase } = await StellarWalletsKit.getNetwork();
+    if (networkPassphrase !== SdkNetworks.TESTNET) {
+      buyerAddress = null;
+      els.payBtn.disabled = true;
+      setStatus("Your wallet is on the wrong network.");
+      els.result.innerHTML =
+        '<p class="error">Switch your wallet to Testnet (in Freighter: Settings, Network, Testnet), then connect again.</p>';
+      return;
+    }
     buyerAddress = address;
     els.address.textContent = address;
     els.payBtn.disabled = false;

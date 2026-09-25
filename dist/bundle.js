@@ -32989,6 +32989,14 @@ els.connectBtn.addEventListener("click", async () => {
   setStatus("Opening wallet selector...");
   try {
     const { address } = await StellarWalletsKit.authModal();
+    const { networkPassphrase } = await StellarWalletsKit.getNetwork();
+    if (networkPassphrase !== Networks2.TESTNET) {
+      buyerAddress = null;
+      els.payBtn.disabled = true;
+      setStatus("Your wallet is on the wrong network.");
+      els.result.innerHTML = '<p class="error">Switch your wallet to Testnet (in Freighter: Settings, Network, Testnet), then connect again.</p>';
+      return;
+    }
     buyerAddress = address;
     els.address.textContent = address;
     els.payBtn.disabled = false;
