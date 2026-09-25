@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Genghis on Stellar — testnet proof of concept</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Genghis on Stellar</h1>
+      <p class="subtitle">Testnet proof of concept for the Stellar Community Fund. Pay from a wallet, get the code back in the same flow. No real money moves here.</p>
+    </header>
+
+    <section class="card">
+      <h2>1. Connect a Stellar wallet</h2>
+      <p>Freighter or xBull, set to <strong>Testnet</strong>.</p>
+      <button id="connect-btn">Connect wallet</button>
+      <p class="mono" id="address"></p>
+    </section>
+
+    <section class="card">
+      <h2>2. Buy: Mobile top-up, 5 XLM (testnet)</h2>
+      <p>Genghis sells the code the moment the payment settles. Here, that means one signed Stellar payment to a memo-tagged testnet deposit address, and the code back in this page.</p>
+      <button id="pay-btn" disabled>Pay 5 XLM (testnet)</button>
+    </section>
+
+    <section class="card status-card">
+      <p id="status">Not connected.</p>
+      <div id="result"></div>
+    </section>
+
+    <footer>
+      <p>Read the architecture: <a href="https://github.com/genghisecommerce/genghis-stellar-docs/blob/main/ARCHITECTURE.md">genghis-stellar-docs</a> · Agent discovery layer: <a href="https://github.com/genghisecommerce/genghis-mcp-readonly">genghis-mcp-readonly</a> · Live product: <a href="https://www.genghis.pro">genghis.pro</a></p>
+    </footer>
+  </main>
+  <script type="module" src="./dist/bundle.js"></script>
+</body>
+</html>
