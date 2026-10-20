@@ -1,32 +1,48 @@
-# Genghis on Stellar: testnet proof of concept
+# Genghis checkout on Stellar: testnet demo
 
-A minimal, live demo of Flow A from [ARCHITECTURE.md](https://github.com/genghisecommerce/genghis-stellar-docs/blob/main/ARCHITECTURE.md): a buyer connects a Stellar wallet, pays with a memo-tagged testnet payment, and gets a code back in the same page, with no redirect.
+A Genghis-branded purchase flow on Stellar testnet. Pick a live Genghis product, pay in **USDC** (the default) or **XLM** from a Stellar wallet, see the payment matched to the order and the product delivered in the same page.
 
-**Try it:** https://genghisecommerce.github.io/genghis-stellar-poc/ (needs Freighter or xBull, set to **Testnet**, with a funded testnet account. Fund one free at https://friendbot.stellar.org/?addr=YOUR_ADDRESS)
+**Try it:** https://genghisecommerce.github.io/genghis-stellar-poc/
 
-No real money moves. Everything runs on Stellar testnet.
+You need Freighter, xBull, Albedo or Hana set to **Testnet**. An empty wallet can be funded from the page (Stellar Friendbot, free testnet XLM). No real money moves.
 
-## What this proves
+## Reviewer journey
 
-- A live frontend using the Stellar Wallets Kit (Freighter and xBull), built for this grant.
-- A signed Stellar payment, submitted straight to testnet Horizon, that carries the memo a payment processor uses to attribute a deposit (see `ARCHITECTURE.md`, section 2, on why the memo matters).
-- The buyer gets a code back inside the same page the moment the payment settles. This synchronous pattern is what the grant brings to production; it is not live on genghis.pro yet.
+1. Open the product page: India eSIM, Singapore eSIM or Amazon US gift card.
+2. Choose a plan or a value. Prices are the live Genghis USD prices, read on 20 October 2026.
+3. Choose USDC (shown first) or XLM. The XLM quote uses the live XLM/USD rate and expires after two minutes; the transaction expires with it.
+4. Connect a wallet through Stellar Wallets Kit.
+5. Approve the payment in the wallet. It settles on Stellar testnet in about five seconds.
+6. See the order confirmation: the payment matched to the order by memo, asset and amount, the transaction link, and the delivered code.
 
-## What is simplified for this static demo
+## What is working, simulated and planned
 
-There is no backend here, so this page plays the part of both the storefront and the order API described in the architecture:
+| Working on testnet | Simulated in this demo | What the grant builds |
+|---|---|---|
+| Live Genghis products, values and USD prices | The order is created in the browser, not in the Genghis order system | This checkout inside genghis.pro, on mainnet |
+| Wallet connection through Stellar Wallets Kit | The delivered code is a placeholder; no supplier is called | USDC received on a Genghis Stellar account, with the listener in the order system |
+| USDC by default, XLM as the alternative, with an expiring XLM quote | The receiving account is a Genghis testnet account made for this demo | XLM through our current payment processor |
+| A payment signed in the wallet and settled on Stellar testnet | A wallet with no testnet USDC pays in XLM, converted by the Stellar DEX in the same transaction, so Genghis still receives the exact USDC amount | The real code delivered the moment the payment settles |
+| The listener: reads the Genghis account on Horizon and matches memo, asset and amount before anything is delivered | | Agent purchases through x402 on Stellar, paid in USDC |
 
-- The "merchant" address is a disposable testnet account funded by Friendbot for this demo, standing in for a processor-issued deposit address.
-- Confirmation is read straight back from Horizon testnet instead of arriving as a processor webhook.
-- The delivered "code" is generated client side rather than looked up in a catalogue.
+## How the payment works
 
-In production these three pieces are the Genghis order API, described in `ARCHITECTURE.md`.
+- **Order reference.** Each order gets a text memo (`GX` plus nine digits). The memo is how the listener attributes a payment to an order.
+- **USDC.** Circle's testnet USDC (`GBBD47IF...LFLA5`). If the wallet holds enough, a plain `payment`; if not, a `pathPaymentStrictReceive` from XLM that delivers exactly the USDC price to Genghis.
+- **XLM.** A plain `payment` at the quoted amount. On mainnet XLM goes through our current processor, which attributes deposits by memo.
+- **Listener.** After settlement the page reads the payments received by the Genghis account (`/accounts/{id}/payments` on Horizon), finds the one with this order's memo, and checks asset and amount. A payment that does not match is not delivered.
+
+Receiving account (testnet): `GAMXQ2KPDSVCBU7VCRJROBOUT3RM2VMIVCXVMAW3EYZKBO7TJEYBG4NN`, on [stellar.expert](https://stellar.expert/explorer/testnet/account/GAMXQ2KPDSVCBU7VCRJROBOUT3RM2VMIVCXVMAW3EYZKBO7TJEYBG4NN).
+
+## Agent prototype
+
+`agent/` holds the earlier agent prototype (25 September 2026): an agent finds a product through the Genghis MCP server, receives an HTTP 402 payment request and pays it on testnet in XLM with a memo. It predates the USDC-first decision; the grant moves agent payments to x402 on Stellar in USDC, received on the Genghis account.
 
 ## Run it locally
 
 ```bash
 npm install
-npx esbuild src/app.js --bundle --format=esm --outfile=dist/bundle.js --platform=browser
+npx esbuild src/app.js --bundle --format=esm --outfile=dist/bundle.js --platform=browser --minify
 python3 -m http.server 8899
 ```
 
@@ -34,12 +50,12 @@ Then open `http://localhost:8899`.
 
 ## Stack
 
-- [Stellar Wallets Kit](https://stellarwalletskit.dev/) 2.7, Freighter and xBull modules
-- [Stellar SDK](https://github.com/stellar/js-stellar-sdk) 17.1, classic Payment operation with a text memo
-- No framework, no build step beyond bundling the two libraries above
+- [Stellar Wallets Kit](https://stellarwalletskit.dev/) 2.7: Freighter, xBull, Albedo and Hana
+- [Stellar SDK](https://github.com/stellar/js-stellar-sdk) 17: `payment` and `pathPaymentStrictReceive` with a text memo, submitted to Horizon testnet
+- No framework, no backend
 
 ## Related
 
-- [genghis-stellar-docs](https://github.com/genghisecommerce/genghis-stellar-docs): the technical architecture this demo implements a slice of
-- [genghis-mcp-readonly](https://github.com/genghisecommerce/genghis-mcp-readonly): the agent discovery layer, tested against production
+- [genghis-stellar-docs](https://github.com/genghisecommerce/genghis-stellar-docs): architecture
+- [genghis-mcp-readonly](https://github.com/genghisecommerce/genghis-mcp-readonly): the Genghis catalogue for AI agents
 - [genghis.pro](https://www.genghis.pro): the live marketplace

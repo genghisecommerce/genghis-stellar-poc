@@ -3,40 +3,126 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Genghis on Stellar: testnet proof of concept</title>
+<title>Genghis checkout on Stellar: testnet demo</title>
+<meta name="description" content="Buy a Genghis product with USDC or XLM on Stellar testnet: live product and price, Stellar Wallets Kit, payment matched to the order, delivery in the same page." />
+<link rel="icon" href="assets/logo-dark.svg" />
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main>
-    <header>
-      <h1>Genghis on Stellar</h1>
-      <p class="subtitle">Testnet proof of concept for the Stellar Community Fund. Pay from a wallet, get the code back in the same flow. No real money moves here.</p>
-    </header>
+  <div class="testnet-strip" role="note">
+    <strong>Stellar testnet demo.</strong> No real money moves. Products and prices are live on genghis.pro (read 20 October 2026); the order and the delivered code are simulated.
+  </div>
 
-    <section class="card">
-      <h2>1. Connect a Stellar wallet</h2>
-      <p>Freighter or xBull, set to <strong>Testnet</strong>.</p>
-      <button id="connect-btn">Connect wallet</button>
-      <p class="mono" id="address"></p>
+  <header class="site-header">
+    <div class="wrap header-row">
+      <a class="logo" href="https://www.genghis.pro" aria-label="Genghis home"><img src="assets/logo-dark.svg" alt="Genghis" /></a>
+      <nav class="cats" aria-label="Categories (display only)">
+        <span>Prepaid cards</span><span>Shopping</span><span>Gaming</span><span>Travel</span><span>eSIM</span>
+      </nav>
+      <button id="connect-btn" class="btn-ghost">Connect wallet</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><span>Home</span><span>Stellar checkout demo</span><span id="crumb-product"></span></nav>
+
+    <section class="picker" aria-label="Choose a product">
+      <p class="label">Pick a product</p>
+      <div class="picker-row" id="picker"></div>
     </section>
 
-    <section class="card">
-      <h2>2. Buy: India eSIM, 1 GB / 7 days</h2>
-      <p>Live Genghis price: <strong>$4.97</strong>, paid in testnet XLM at the current XLM/USD rate. Genghis delivers the code the moment the payment settles. Here, that means one signed Stellar payment to a memo-tagged testnet deposit address, and the code back in this page.</p>
-      <p class="mono" id="quote"></p>
-      <button id="pay-btn" disabled>Pay with Stellar (testnet)</button>
+    <div class="pdp" id="pdp">
+      <section class="pdp-left">
+        <p class="label" id="p-kind"></p>
+        <h1 id="p-title"></h1>
+        <ul class="facts" id="p-facts"></ul>
+        <div class="hero-img"><img id="p-img" alt="" /></div>
+        <table class="spec" id="p-spec"></table>
+      </section>
+
+      <section class="pdp-right" id="buy-panel">
+        <p class="label" id="opt-label">Plan</p>
+        <div class="options" id="options"></div>
+
+        <div class="price-row">
+          <span class="price mono" id="price"></span>
+          <span class="muted small">Live Genghis price in USD</span>
+        </div>
+
+        <p class="label">Pay with</p>
+        <div class="assets" role="radiogroup" aria-label="Payment asset">
+          <button class="asset selected" data-asset="USDC" role="radio" aria-checked="true">
+            <span class="asset-name">USDC <em class="tag">Default</em></span>
+            <span class="asset-sub" id="usdc-quote">1 USDC = 1 USD, no rate risk</span>
+          </button>
+          <button class="asset" data-asset="XLM" role="radio" aria-checked="false">
+            <span class="asset-name">XLM</span>
+            <span class="asset-sub" id="xlm-quote">Quote at the live XLM rate</span>
+          </button>
+        </div>
+        <p class="muted small" id="asset-note"></p>
+
+        <div class="wallet-box" id="wallet-box">
+          <p class="small" id="wallet-line">Connect Freighter, xBull, Albedo or Hana, set to Testnet.</p>
+          <button id="fund-btn" class="btn-link" hidden>Fund this wallet with free testnet XLM</button>
+        </div>
+
+        <button id="pay-btn" class="btn-cta" disabled>Connect a wallet to pay</button>
+        <p id="status" class="status small" aria-live="polite"></p>
+        <p id="error" class="error small" role="alert"></p>
+      </section>
+
+      <section class="pdp-right confirm" id="confirm" hidden aria-live="polite">
+        <p class="label">Order confirmed</p>
+        <h2 id="c-title"></h2>
+        <ol class="timeline" id="timeline"></ol>
+        <div class="delivery" id="delivery"></div>
+        <dl class="receipt" id="receipt"></dl>
+        <button id="again-btn" class="btn-ghost">Buy another product</button>
+      </section>
+    </div>
+
+    <section class="scope" aria-labelledby="scope-h">
+      <h2 id="scope-h">What this demo shows</h2>
+      <div class="scope-grid">
+        <div class="scope-col">
+          <p class="pill pill-live">Working on testnet</p>
+          <ul>
+            <li>Live Genghis products, values and USD prices</li>
+            <li>Wallet connection through Stellar Wallets Kit</li>
+            <li>USDC as the default asset, XLM as the alternative, with a quote that expires</li>
+            <li>A payment signed in your wallet and settled on Stellar testnet</li>
+            <li>The payment matched to the order by memo, asset and amount, read back from Horizon by a listener in this page</li>
+          </ul>
+        </div>
+        <div class="scope-col">
+          <p class="pill pill-sim">Simulated here</p>
+          <ul>
+            <li>The order is created in your browser, not in the Genghis order system</li>
+            <li>The delivered code is a placeholder: no supplier is called</li>
+            <li>The receiving account is a Genghis testnet account made for this demo</li>
+            <li>If your wallet holds no testnet USDC, it pays in XLM and the Stellar DEX converts it, so Genghis still receives the exact USDC amount</li>
+          </ul>
+        </div>
+        <div class="scope-col">
+          <p class="pill pill-plan">What the grant builds</p>
+          <ul>
+            <li>This checkout inside genghis.pro, on mainnet</li>
+            <li>USDC received on a Genghis Stellar account, with the listener running in the order system</li>
+            <li>XLM through our current payment processor</li>
+            <li>The real code delivered the moment the payment settles</li>
+            <li>Agent purchases through x402 on Stellar, paid in USDC</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
-    <section class="card status-card">
-      <p id="status">Not connected.</p>
-      <div id="result"></div>
-    </section>
-
-    <footer>
+    <footer class="foot">
       <ul>
-        <li>Architecture: <a href="https://github.com/genghisecommerce/genghis-stellar-docs/blob/main/ARCHITECTURE.md">genghis-stellar-docs</a></li>
-        <li>Agent discovery layer: <a href="https://github.com/genghisecommerce/genghis-mcp-readonly">genghis-mcp-readonly</a></li>
-        <li>Live marketplace: <a href="https://www.genghis.pro">genghis.pro</a></li>
+        <li><a href="https://www.genghis.pro">genghis.pro</a>: the live marketplace</li>
+        <li><a href="https://github.com/genghisecommerce/genghis-stellar-docs">genghis-stellar-docs</a>: architecture</li>
+        <li><a href="https://github.com/genghisecommerce/genghis-mcp-readonly">genghis-mcp-readonly</a>: the catalogue for AI agents</li>
+        <li><a href="https://github.com/genghisecommerce/genghis-stellar-poc">Source of this demo</a></li>
       </ul>
     </footer>
   </main>
