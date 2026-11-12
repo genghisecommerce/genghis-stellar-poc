@@ -21,9 +21,11 @@ You need Freighter, xBull, Albedo or Hana set to **Testnet**. An empty wallet ca
 |---|---|---|
 | Live Genghis products, values and USD prices | The order is created in the browser, not in the Genghis order system | This checkout inside genghis.pro, on mainnet |
 | Wallet connection through Stellar Wallets Kit | The delivered code is a placeholder; no supplier is called | USDC received on a Genghis Stellar account, with the listener in the order system |
-| USDC by default, XLM as the alternative, with an expiring XLM quote | The receiving account is a Genghis testnet account made for this demo | XLM through our current payment processor |
+| USDC by default, XLM as the alternative, with an expiring XLM quote | The receiving account is a Genghis testnet account made for this demo | XLM and EURC accepted through a path payment that delivers USDC |
 | A payment signed in the wallet and settled on Stellar testnet | A wallet with no testnet USDC pays in XLM, converted by the Stellar DEX in the same transaction, so Genghis still receives the exact USDC amount | The real code delivered the moment the payment settles |
-| The listener: reads the Genghis account on Horizon and matches memo, asset and amount before anything is delivered | | Agent purchases through x402 on Stellar, paid in USDC |
+| The listener: reads the Genghis account on Horizon and matches memo, asset and amount before anything is delivered | | Agent purchases through the standard x402 scheme, on Stellar and on CCTP chains |
+| | | Other cryptos through Near Intents, wrapped tokens through Axelar with Soroswap |
+| | | A Purchase API and a Checkout SDK for wallets and applications |
 
 ## How the payment works
 
@@ -36,7 +38,7 @@ Receiving account (testnet): `GAMXQ2KPDSVCBU7VCRJROBOUT3RM2VMIVCXVMAW3EYZKBO7TJE
 
 ## Agent prototype
 
-`agent/` holds the earlier agent prototype (25 September 2026): an agent finds a product through the Genghis MCP server, receives an HTTP 402 payment request and pays it on testnet in XLM with a memo. It predates the USDC-first decision; the grant moves agent payments to x402 on Stellar in USDC, received on the Genghis account.
+`agent/` holds the earlier agent prototype (25 September 2026): an agent finds a product through the Genghis MCP server, receives an HTTP 402 payment request and pays it on testnet in XLM with a memo. It predates the USDC-first decision; the grant replaces this memo bridge prototype with the standard x402 exact scheme, paid in USDC to the Genghis account.
 
 ## Run it locally
 
