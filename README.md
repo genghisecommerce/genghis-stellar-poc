@@ -4,6 +4,8 @@ A Genghis-branded purchase flow on Stellar testnet. Pick a live Genghis product,
 
 **Try it:** https://genghisecommerce.github.io/genghis-stellar-poc/
 
+**Video walkthrough:** https://youtu.be/AHclPxdSYRs
+
 You need Freighter, xBull, Albedo or Hana set to **Testnet**. An empty wallet can be funded from the page (Stellar Friendbot, free testnet XLM). No real money moves.
 
 ## Reviewer journey
