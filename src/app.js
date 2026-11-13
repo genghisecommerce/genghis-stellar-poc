@@ -15,6 +15,7 @@
 // this demo. In production the order system issues the memo, runs the
 // listener and calls the supplier (see genghis-stellar-docs).
 
+import { evaluatePayment } from "./match.js";
 import { StellarWalletsKit, Networks } from "@creit.tech/stellar-wallets-kit";
 import { FreighterModule } from "@creit.tech/stellar-wallets-kit/modules/freighter";
 import { xBullModule } from "@creit.tech/stellar-wallets-kit/modules/xbull";
@@ -367,9 +368,12 @@ async function matchPayment(orderId, hash, wantAsset, wantAmount) {
     const hit = recs.find((p) => p.transaction_hash === hash && p.transaction?.memo === orderId);
     if (hit) {
       const code = hit.asset_type === "native" ? "XLM" : hit.asset_code;
-      const okAsset = code === wantAsset && (code === "XLM" || hit.asset_issuer === USDC.issuer);
-      const okAmount = Number(hit.amount) + 1e-7 >= Number(wantAmount);
-      return { hit, code, ok: okAsset && okAmount };
+      const verdict = evaluatePayment({
+        payment: { ...hit, memo: hit.transaction?.memo },
+        order: { id: orderId, asset: wantAsset, amount: wantAmount, issuer: USDC.issuer },
+        now: Date.now(),
+      });
+      return { hit, code, ok: verdict.decision === "deliver", verdict };
     }
     await new Promise((res) => setTimeout(res, 1000));
   }

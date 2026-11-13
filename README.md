@@ -1,5 +1,7 @@
 # Genghis checkout on Stellar: testnet demo
 
+[![test](https://github.com/genghisecommerce/genghis-stellar-poc/actions/workflows/test.yml/badge.svg)](https://github.com/genghisecommerce/genghis-stellar-poc/actions/workflows/test.yml)
+
 A Genghis-branded purchase flow on Stellar testnet. Pick a live Genghis product, pay in **USDC** (the default) or **XLM** from a Stellar wallet, see the payment matched to the order and the product delivered in the same page.
 
 **Try it:** https://genghisecommerce.github.io/genghis-stellar-poc/
@@ -42,11 +44,29 @@ Receiving account (testnet): `GAMXQ2KPDSVCBU7VCRJROBOUT3RM2VMIVCXVMAW3EYZKBO7TJE
 
 `agent/` holds the earlier agent prototype (25 September 2026): an agent finds a product through the Genghis MCP server, receives an HTTP 402 payment request and pays it on testnet in XLM with a memo. It predates the USDC-first decision; the grant replaces this memo bridge prototype with the standard x402 exact scheme, paid in USDC to the Genghis account.
 
+## Payment rules and tests
+
+The matching logic lives in `src/match.js`, a pure function with no network or DOM access. The demo uses it to decide whether a payment delivers the order. Amounts are compared in stroops (7 decimals, as integers), never as floats.
+
+| Case | Decision |
+|---|---|
+| USDC, known memo, correct issuer, exact amount, before expiry | deliver |
+| No memo, or unknown memo | hold for manual reconciliation |
+| Wrong asset or wrong issuer | refund |
+| XLM sent directly to a USDC order | refund |
+| Underpayment | hold until expiry, then refund |
+| Overpayment | deliver, refund the difference |
+| Payment after expiry, known memo | refund |
+
+Run: `npm test`
+
+This is the first step of deliverable 1.1 in the milestones: https://github.com/genghisecommerce/genghis-stellar-docs/blob/main/MILESTONES.md
+
 ## Run it locally
 
 ```bash
 npm install
-npx esbuild src/app.js --bundle --format=esm --outfile=dist/bundle.js --platform=browser --minify
+npm run build
 python3 -m http.server 8899
 ```
 

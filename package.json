@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test",
+    "build": "esbuild src/app.js --bundle --format=esm --outfile=dist/bundle.js --platform=browser --minify"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "dependencies": {
     "@creit.tech/stellar-wallets-kit": "^2.7.0",
     "@stellar/stellar-sdk": "^17.1.0",
     "esbuild": "^0.24.0"
-  }
+  },
+  "type": "module"
 }
