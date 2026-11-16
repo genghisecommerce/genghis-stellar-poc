@@ -16,6 +16,7 @@
 // listener and calls the supplier (see genghis-stellar-docs).
 
 import { evaluatePayment } from "./match.js";
+import { findTransferConfirmation } from "./rpc.js";
 import { StellarWalletsKit, Networks } from "@creit.tech/stellar-wallets-kit";
 import { FreighterModule } from "@creit.tech/stellar-wallets-kit/modules/freighter";
 import { xBullModule } from "@creit.tech/stellar-wallets-kit/modules/xbull";
@@ -383,7 +384,9 @@ async function matchPayment(orderId, hash, wantAsset, wantAmount) {
 function step(text, live) {
   const li = document.createElement("li");
   li.className = live ? "" : "sim";
-  li.innerHTML = `<span class="dot"></span><span class="what">${text}</span><span class="badge ${live ? "badge-live" : "badge-sim"}">${live ? "Testnet" : "Simulated"}</span>`;
+  // live: true = Testnet, false = Simulated, null = neutral line without a pill.
+  const badge = live === null ? "" : `<span class="badge ${live ? "badge-live" : "badge-sim"}">${live ? "Testnet" : "Simulated"}</span>`;
+  li.innerHTML = `<span class="dot"></span><span class="what">${text}</span>${badge}`;
   els.timeline.appendChild(li);
 }
 
@@ -442,6 +445,16 @@ els.payBtn.addEventListener("click", async () => {
     const m = await matchPayment(orderId, subData.hash, wantAsset, wantAmount);
     if (!m || !m.ok) throw new Error("The payment settled but could not be matched to the order (memo, asset or amount). Nothing would be delivered.");
 
+    // Second source: Stellar RPC getEvents. Never blocks delivery.
+    setStatus("Matched on Horizon. Checking a second source, Stellar RPC...");
+    let second = null;
+    try {
+      second = await findTransferConfirmation(
+        { asset: wantAsset, issuer: USDC.issuer, amount: wantAmount, to: MERCHANT, txHash: subData.hash },
+        { ledgerHint: Number(m.hit.transaction?.ledger) || undefined, timeoutMs: 8000 },
+      );
+    } catch { second = null; }
+
     const code = (p.kind === "eSIM" ? "LPA-TEST-" : "TEST-") + orderId.slice(2, 6) + "-" + orderId.slice(6);
     els.cTitle.textContent = `${p.name}, ${optName}`;
     els.timeline.innerHTML = "";
@@ -451,6 +464,9 @@ els.payBtn.addEventListener("click", async () => {
       [`Order ${orderId} created, ${usd(price())}`, false],
       [`Payment signed in your wallet and settled in ${settled} s`, true],
       [`Matched to the order: memo ${orderId}, ${Number(m.hit.amount).toFixed(2)} ${m.code} received by Genghis`, true],
+      second
+        ? [`Confirmed by a second source, Stellar RPC: transfer event in ledger ${second.ledger}`, true]
+        : ["Second source unavailable, Horizon match stands", null],
       ["Code requested from the supplier and delivered", false],
       ["Copy sent by email", false],
     ];

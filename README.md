@@ -58,6 +58,10 @@ The matching logic lives in `src/match.js`, a pure function with no network or D
 | Overpayment | deliver, refund the difference |
 | Payment after expiry, known memo | refund |
 
+### Two sources
+
+A payment is confirmed twice, by two independent services. Horizon (the account's payment records) does the first match, by memo, asset and amount. Then `src/rpc.js` asks Stellar RPC (`getEvents`) for the Stellar Asset Contract `transfer` event of the same transaction hash. Since protocol 23 a classic payment also emits that event, so the check works for ordinary wallet payments and for transfers issued by a contract. `confirmFromEvent` is a pure function: it accepts an event only if the contract (asset), the recipient and the amount in stroops all match. The demo adds one timeline line with the ledger number. If RPC does not answer within 8 seconds, the line reads "Second source unavailable, Horizon match stands" and delivery goes ahead. The tests use recorded testnet events in `test/fixtures/` and make no network calls. This is the second source of deliverable 1.3: https://github.com/genghisecommerce/genghis-stellar-docs/blob/main/MILESTONES.md
+
 Run: `npm test`
 
 This is the first step of deliverable 1.1 in the milestones: https://github.com/genghisecommerce/genghis-stellar-docs/blob/main/MILESTONES.md
